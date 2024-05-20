@@ -53,12 +53,6 @@ class BoardObject:
         self.text = text
         return text
 
-# def denoise(binary_image):
-#     # Sử dụng phép toán morphology để loại bỏ nhiễu
-#     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-#     denoised_image = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel)
-    
-#     return denoised_image
 
 class BoardDetector:
     def __init__(self, approx_cnt=4, min_area=2000, aspect_ratio=(0.8, 3), black_pix_ratio=(0.2, 0.85)):

@@ -4,6 +4,7 @@ from PIL import Image
 from vietocr.tool.predictor import Predictor
 from vietocr.tool.config import Cfg
 
+
 def getPredictor() -> Predictor:
     config = Cfg.load_config_from_name('vgg_transformer')
 
@@ -12,10 +13,12 @@ def getPredictor() -> Predictor:
     detector = Predictor(config)
     return detector
 
-def predictText(image, detector: Predictor):
+
+def predictText(image, detector: Predictor) -> str:
     image = Image.fromarray(image)
     text = detector.predict(image, return_prob=False)
     return text
+
 
 if __name__ == "__main__":
 
