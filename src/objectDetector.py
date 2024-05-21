@@ -4,9 +4,15 @@ from src.Utils.imgCrop import order_points, four_point_transform
 from typing import List
 
 class TextArea:
+    """
+        Lớp chứa thông tin về vùng văn bản phát hiện được
+    """
     def __init__(self, img: np.ndarray, box: np.ndarray, text=None):
+        # Ảnh của vùng văn bản
         self._img = img
+        # Tọa độ 4 điểm của vùng văn bản
         self._box = box
+        # Văn bản trong vùng văn bản
         self._text = text
 
     @property
@@ -27,16 +33,21 @@ class TextArea:
 
 
 class BoardObject:
+    """
+        Lớp chứa thông tin về đối tượng phát hiện được
+    """
     def __init__(self, image, box):
         # Ảnh của đối tượng
-        # Tọa dộ 4 diểm của đối tượng
         self.image = image
+        # Tọa độ 4 điểm của đối tượng
         self.box = box
+        # Danh sách các vùng văn bản trong đối tượng
         self.textAreas = []
+        # Chuỗi văn bản của đối tượng
         self.text = None
 
     
-    def addTextArea(self, textArea: TextArea):
+    def addTextArea(self, textArea: TextArea) -> None:
         self.textAreas.append(textArea)
 
     def getTextAreas(self) -> List[TextArea]:
@@ -45,7 +56,7 @@ class BoardObject:
     def getImage(self):
         return self.image
 
-    def genTextValue(self):
+    def genTextValue(self) -> None:
         self.textAreas.sort(key=lambda x: x.box[0][1])
         text = ''
         for textArea in self.textAreas:
@@ -55,13 +66,17 @@ class BoardObject:
 
 
 class BoardDetector:
-    def __init__(self, approx_cnt=4, min_area=2000, aspect_ratio=(0.8, 3), black_pix_ratio=(0.2, 0.85)):
-        """
-            approx_cnt: Số cạnh xấp xỉ của đối tượng
-            min_area: Diện tích tối thiểu của đối tượng
-            aspect_ratio: Tỷ lệ khung hình của đối tượng
-            black_pix_ratio: Tỷ lệ pixel màu đen trong đối tượng
-        """
+    """
+    Lớp BoardDetector dùng để phát hiện các đối tượng từ ảnh đầu vào
+
+    Attributes:
+    approx_cnt (int): Số cạnh xấp xỉ của đối tượng. 
+    min_area (int): Diện tích tối thiểu của đối tượng. 
+    aspect_ratio (tuple): Tỷ lệ khung hình của đối tượng, dạng (tối thiểu, tối đa).
+    black_pix_ratio (tuple): Tỷ lệ pixel màu đen trong đối tượng, dạng (tối thiểu, tối đa). 
+    """
+    def __init__(self, approx_cnt=4, min_area=2000, 
+                 aspect_ratio=(0.8, 3), black_pix_ratio=(0.2, 0.85)):
         self.approx_cnt = approx_cnt
         self.min_area = min_area
         self.aspect_ratio = aspect_ratio
@@ -110,11 +125,14 @@ class BoardDetector:
             if len(approx) != 4:
                 continue
             number_of_black_pix = np.sum(mask[y:y+h, x:x+w]) / 255 
-            if (number_of_black_pix/(w*h)) > self.black_pix_ratio[1] or (number_of_black_pix/(w*h)) < self.black_pix_ratio[0]:
+            # Kiểm tra tỷ lệ pixel màu đen trong contour
+            if (number_of_black_pix/(w*h)) > self.black_pix_ratio[1] \
+                or (number_of_black_pix/(w*h)) < self.black_pix_ratio[0]:
                 continue
+            # Kiểm tra tỷ lệ khung hình của contour
             if (w/h > self.aspect_ratio[1]) or (w/h < self.aspect_ratio[0]):
                 continue
-            
+            # Kiểm tra diện tích của contour
             if (w*h) < self.min_area:
                 continue
             rect = cv2.minAreaRect(contour)
